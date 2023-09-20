@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    height: 60vh;  /* Adjust height as per your requirements */
+  }
+  
+  .checkbox-section {
+    width: 30%;
+  }
+  
+  .chart-section {
+    width: 70%;
+  }
+  
+  .table-section {
+    width: 100%;
+    margin-top: 20px; /* Gives some space between the chart and the table */
+  }
+  
