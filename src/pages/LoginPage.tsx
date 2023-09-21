@@ -1,41 +1,31 @@
-import { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { authState } from '../state/authState';
+import React, { useState } from 'react';
 
-function LoginPage() {
-  const [isAuthenticated, setIsAuthenticated] = useRecoilState(authState);
-  const [userId, setUserId] = useState('');
+type LoginPageProps = {
+  onLogin: (id: string) => void;
+};
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
 
-  function handleLogin() {
-    // In a real-world scenario, you'd send these details to your backend for verification.
-    if (userId && password) { // Simple check: if both fields are filled, grant access.
-      setIsAuthenticated(true);
-    } else {
-      alert('Please enter both user ID and password');
-    }
-  }
+  const handleLoginClick = () => {
+    onLogin(id);
+  };
 
   return (
     <div>
-      <h2>Login</h2>
+      <h2>Login Page</h2>
       <div>
-        <label>
-          User ID:
-          <input type="text" value={userId} onChange={e => setUserId(e.target.value)} />
-        </label>
+        <label>ID: </label>
+        <input type="text" value={id} onChange={(e) => setId(e.target.value)} />
       </div>
       <div>
-        <label>
-          Password:
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
-        </label>
+        <label>Password: </label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
-      <div>
-        <button onClick={handleLogin}>Login</button>
-      </div>
+      <button onClick={handleLoginClick}>Login</button>
     </div>
   );
-}
+};
 
 export default LoginPage;

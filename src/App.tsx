@@ -1,43 +1,37 @@
-import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { authState } from './state/authState';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import { useRecoilState } from 'recoil';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css'
 import DataDisplayPage from './pages/DataDisplayPage/DataDisplayPage';
 import LoginPage from './pages/LoginPage';
 import MenuPage from './pages/MenuPage';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import { loginState } from './state/loginState';
 
-function App() {
-  const isAuthenticated = useRecoilValue(authState);
+const App: React.FC = () => {
+  const [loginInfo, setLoginInfo] = useRecoilState(loginState);
+
+  const handleLogout = () => {
+    setLoginInfo({ isLoggedIn: false, userId: null });
+  };
+
+  const handleLogin = (id: string) => {
+    setLoginInfo({ isLoggedIn: true, userId: id });
+  };
 
   return (
     <Router>
-          <div className="app-container">
-      <Header />
-      <div className="main-content">
-      <main>
-        <Routes>
-          {isAuthenticated ? (
-            <>
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/num1" element={<DataDisplayPage numKey="num1" />} />
-              <Route path="/num2" element={<DataDisplayPage numKey="num2" />} />
-              <Route path="/num3" element={<DataDisplayPage numKey="num3" />} />
-            </>
-          ) : (
-            <>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="*" element={<LoginPage />} />
-            </>
-          )}
-        </Routes>
-      </main>
-      </div>
-      <Footer />
-      </div>
+      <Header onLogout={handleLogout} isLoggedIn={loginInfo.isLoggedIn} />
+        <div className="main-content">
+          <Routes>
+          <Route path="/login" element={!loginInfo.isLoggedIn ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/" />} />
+          <Route path="/" element={loginInfo.isLoggedIn ? <MenuPage /> : <Navigate to="/login" />} />
+          <Route path="/:numKey" element={loginInfo.isLoggedIn ? <DataDisplayPage /> : <Navigate to="/login" />} />
+          </Routes>
+          </div>
+        <Footer />
     </Router>
   );
-}
+};
 
 export default App;

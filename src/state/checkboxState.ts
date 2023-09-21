@@ -1,14 +1,11 @@
+// checkboxState.ts
 import { atom } from 'recoil';
 
-export interface CheckboxStateType {
-  industry: string[];
-  prefactures: string[];
+export interface CheckboxItems {
+  [key: string]: boolean;
 }
 
-export const checkboxState = atom<CheckboxStateType>({
+export const checkboxState = atom<CheckboxItems>({
   key: 'checkboxState',
-  default: {
-    industry: [],
-    prefactures: []
-  }
+  default: {}
 });

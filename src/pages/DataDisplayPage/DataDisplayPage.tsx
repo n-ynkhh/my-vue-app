@@ -1,71 +1,81 @@
-import React from 'react';
-import './DataDisplayPage.css';
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import ChartComponent from '../../components/ChartComponent';
 import TableComponent from '../../components/TableComponent';
+import pageConfigs from '../../pageConfigs';
 import { useRecoilState } from 'recoil';
-import { checkboxState, CheckboxStateType } from '../../state/checkboxState';
-import data, { DataItem } from '../../data';
+import { checkboxState, CheckboxItems } from '../../state/checkboxState';
+import data from '../../data';
 
-interface DataDisplayPageProps {
-  numKey: 'num1' | 'num2' | 'num3';
-}
+const DataDisplayPage: React.FC = () => {
+  const { numKey } = useParams<{ numKey: string }>();
+  const [checkedItems, setCheckedItems] = useRecoilState<CheckboxItems>(checkboxState);
+  const pageConfig = numKey ? pageConfigs[numKey] : undefined;
 
-const DataDisplayPage: React.FC<DataDisplayPageProps> = ({ numKey }) => {
-  const [checkedItems, setCheckedItems] = useRecoilState(checkboxState);
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setCheckedItems(prevState => ({
+      ...prevState,
+      [name]: checked,
+    }));
+  };
 
-  // Filter data based on checkboxState
-  const filteredData: DataItem[] = data.filter(item => {
-    return Object.entries(checkedItems).every(([key, value]) => {
-      if (value.length === 0) return true;
-      return value.includes(item[key as keyof DataItem]);
-    });
-  });
+  const renderCheckboxesFor = (key: string) => {
+    const uniqueItems: Array<string | number | null> = Array.from(
+      new Set(data.map(item => item[key as keyof typeof item]))
+    );
+    return (
+      <div className="checkbox-section">
+        <h3>{key}</h3>
+        {uniqueItems.map((item, index) => (
+          <label key={index} className="checkbox-item">
+            <input 
+              type="checkbox"
+              name={`${key}-${String(item)}`}
+              checked={Boolean(checkedItems[`${key}-${String(item)}`])}
+              onChange={handleCheckboxChange}
+            />
+            {item}
+          </label>
+        ))}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    if (pageConfig) {
+      const initialCheckedItems: { [key: string]: boolean } = {};
+      Object.keys(pageConfig.conditions).forEach((key) => {
+        if (pageConfig.conditions[key]) {
+          const uniqueItems = Array.from(new Set(data.map(item => String(item[key as keyof typeof item]))));
+          uniqueItems.forEach(item => {
+            initialCheckedItems[`${key}-${item}`] = true;
+          });
+        }
+      });
+      setCheckedItems(initialCheckedItems);
+    }
+  }, [pageConfig]);
+
+  if (!pageConfig || !numKey) {
+    return <div>No such page</div>;
+  }
 
   return (
-    <div>
-      <div className="container">
-<div className="checkbox-section">
-  {['industry', 'prefactures'].map(category => (
-    <div key={category}>
-      <h3>{category}</h3>
-      {Array.from(new Set(data.map(item => String(item[category as keyof DataItem])))).map(value => (
-        <div key={value}>
-          <input
-            type="checkbox"
-            checked={checkedItems[category as keyof CheckboxStateType]?.includes(value)}
-            onChange={() => {
-                const currentItems = checkedItems[category as keyof CheckboxStateType] || [];
-                if (currentItems.includes(value)) {
-                  setCheckedItems({
-                    ...checkedItems,
-                    [category]: currentItems.filter(v => v !== value)
-                  });
-                } else {
-                  setCheckedItems({
-                    ...checkedItems,
-                    [category]: [...currentItems, value]
-                  });
-                }
-              }}
-          />
-          <label>{value}</label>
+    <div className="container">
+      <div>
+        <div className="checkbox-container">
+        {Object.keys(pageConfig.conditions).map(key => pageConfig.conditions[key] && renderCheckboxesFor(key))}
         </div>
-      ))}
-    </div>
-  ))}
-  </div>
-
-
-      <div className="chart-section">
-        <ChartComponent data={filteredData} numKey={numKey} />
+        <div className="chart-container">
+        {pageConfig.chart && <ChartComponent dataKey={numKey} checkedItems={checkedItems} />}
+        </div>
       </div>
+      <div className="table-container">
+        {pageConfig.table && <TableComponent checkedItems={checkedItems} />}
       </div>
-      <div className="table-section">
-        <TableComponent data={filteredData} numKey={numKey} />
-      </div>
-
     </div>
   );
-}
+};
 
 export default DataDisplayPage;

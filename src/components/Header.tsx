@@ -1,23 +1,15 @@
-import { useRecoilState } from 'recoil';
-import { authState } from '../state/authState';
+import React from 'react';
 
-function Header() {
-    const [isAuthenticated, setIsAuthenticated] = useRecoilState(authState);
+type HeaderProps = {
+  onLogout: () => void;
+  isLoggedIn: boolean;
+};
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
-
-  return (
-    <header>
-    <h1>My App</h1>
-      {isAuthenticated && (
-        <button onClick={handleLogout} style={{ position: 'absolute', top: '10px', right: '10px' }}>
-          Logout
-        </button>
-      )}
-    </header>
-  );
-}
+const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn }) => (
+  <div className="header">
+    <h1>サイト名</h1>
+    {isLoggedIn && <button className="logout-button" onClick={onLogout}>Logout</button>}
+  </div>
+);
 
 export default Header;
