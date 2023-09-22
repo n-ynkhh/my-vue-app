@@ -15,7 +15,7 @@ export interface DataItem {
         "prefactures": "ccc1",
         "employee": 500,
         "mane": 53,
-        "sala": 89,
+        "sala": 300,
         "sales": 8
       },
       {
@@ -24,7 +24,7 @@ export interface DataItem {
         "prefactures": "ccc1",
         "employee": 210,
         "mane": 95,
-        "sala": 34,
+        "sala": 450,
         "sales": 67
       },
       {
@@ -33,7 +33,7 @@ export interface DataItem {
         "prefactures": "ccc3",
         "employee": 5500,
         "mane": 33,
-        "sala": 9,
+        "sala": 600,
         "sales": 28
       },
       {
@@ -42,7 +42,7 @@ export interface DataItem {
         "prefactures": "ccc2",
         "employee": 3000,
         "mane": 2,
-        "sala": 99,
+        "sala": 1200,
         "sales": 88
       },
       {
@@ -51,7 +51,7 @@ export interface DataItem {
         "prefactures": "ccc4",
         "employee": 1500,
         "mane": null,
-        "sala": 933,
+        "sala": 800,
         "sales": 218
       },
       {
@@ -60,7 +60,7 @@ export interface DataItem {
         "prefactures": "ccc5",
         "employee": 20,
         "mane": 313,
-        "sala": 90,
+        "sala": 1500,
         "sales": null
       },
       {
@@ -69,7 +69,7 @@ export interface DataItem {
         "prefactures": "ccc8",
         "employee": 800,
         "mane": 62,
-        "sala": 99,
+        "sala": 450,
         "sales": 100
       }
   ];

@@ -1,0 +1,35 @@
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
+import { useRecoilValue } from 'recoil';
+import { companyDataState } from './companyDataState'; // Adjust import path as needed
+
+const BarChart: React.FC = () => {
+  const companyData = useRecoilValue(companyDataState);
+  
+  const levels = Array.from({ length: 10 }, (_, i) => i * 3000000);
+  const counts = new Array(10).fill(0);
+
+  companyData.forEach((company) => {
+    if (company.sala !== null) {
+      const index = Math.min(Math.floor(company.sala / 3000000), 9);
+      counts[index]++;
+    }
+  });
+
+  const data = {
+    labels: levels.map((level, i) => `${level} - ${levels[i + 1] || '30000000'}`),
+    datasets: [
+      {
+        label: '# of Companies',
+        data: counts,
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  return <Bar data={data} />;
+};
+
+export default BarChart;
