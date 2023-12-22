@@ -1,0 +1,46 @@
+/* A */
+.a {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: red;
+}
+
+/* B */
+.b {
+  position: relative;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+/* C */
+.c {
+  position: relative;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
+
+/* D */
+.d {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  background-color: blue;
+}
+
+/* 横幅の調整 */
+@media screen and (max-width: 1000px) {
+  .b {
+    width: 50%;
+  }
+}
