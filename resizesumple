@@ -1,0 +1,33 @@
+import React, { useEffect, useRef } from 'react';
+
+const MyComponent: React.FC = () => {
+  const elementBRef = useRef<HTMLDivElement>(null);
+  const elementCRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const adjustWidth = () => {
+      if (elementCRef.current && elementBRef.current) {
+        const widthC = elementCRef.current.offsetWidth;
+        elementBRef.current.style.maxWidth = `${widthC}px`;
+      }
+    };
+
+    // ウィンドウリサイズ時に幅を調整
+    window.addEventListener('resize', adjustWidth);
+
+    // 初期ロード時に幅を設定
+    adjustWidth();
+
+    // クリーンアップ関数
+    return () => window.removeEventListener('resize', adjustWidth);
+  }, []);
+
+  return (
+    <div>
+      <div ref={elementBRef} className="elementB">Element B</div>
+      <div ref={elementCRef} className="elementC">Element C</div>
+    </div>
+  );
+};
+
+export default MyComponent;
