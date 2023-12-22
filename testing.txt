@@ -44,3 +44,47 @@
     width: 50%;
   }
 }
+
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+#A {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px; /* 必要に応じて調整 */
+  background: #ccc; /* 視認性のため */
+  z-index: 100;
+}
+
+#B {
+  position: absolute;
+  top: 50px; /* A の高さに応じて調整 */
+  left: 0;
+  width: 60%; /* 必要に応じて調整 */
+  height: calc(100vh - 50px); /* A の高さに応じて調整 */
+  overflow-y: scroll;
+  background: #ddd; /* 視認性のため */
+}
+
+#C {
+  position: absolute;
+  top: 50px; /* A の高さに応じて調整 */
+  right: 0;
+  width: 40%; /* 必要に応じて調整 */
+  height: calc(100vh - 50px); /* A の高さに応じて調整 */
+  overflow-y: scroll;
+  background: #eee; /* 視認性のため */
+}
+
+#D {
+  /* B の内容の最後に配置されるように特別なスタイリングは必要ありません */
+}
+
