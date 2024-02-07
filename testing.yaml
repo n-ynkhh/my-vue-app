@@ -7,3 +7,16 @@ run-script-with-env:
     - chmod +x ./path/to/your/script.sh  # スクリプトを実行可能にする
     - export DATABASE_URL=$DATABASE_URL  # 環境変数をエクスポートしてスクリプトで利用可能にする
     - ./path/to/your/script.sh  # スクリプトを実行
+
+
+
+run-script-with-env:
+  stage: execute
+  image: ubuntu:latest  # Dockerイメージを指定
+  script:
+    - apt-get update -y && apt-get install -y curl jq  # curlとjqをインストール
+    - chmod +x ./path/to/your/script.sh
+    - export DATABASE_URL=$DATABASE_URL
+    - ./path/to/your/script.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
