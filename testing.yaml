@@ -1,0 +1,9 @@
+stages:
+  - execute
+
+run-script-with-env:
+  stage: execute
+  script:
+    - chmod +x ./path/to/your/script.sh  # スクリプトを実行可能にする
+    - export DATABASE_URL=$DATABASE_URL  # 環境変数をエクスポートしてスクリプトで利用可能にする
+    - ./path/to/your/script.sh  # スクリプトを実行
