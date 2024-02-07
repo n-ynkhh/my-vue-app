@@ -20,3 +20,6 @@ run-script-with-env:
     - ./path/to/your/script.sh
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+
+curl --header "JOB-TOKEN: $CI_JOB_TOKEN" "https://gitlab.example.com/api/v4/projects/:id/repository/commits"
