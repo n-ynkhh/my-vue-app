@@ -1,0 +1,16 @@
+stages:
+  - execute
+
+job1:
+  stage: execute
+  script:
+    - echo "Executing Job 1"
+  rules:
+    - if: '$JOB_TO_RUN == "job1"'
+
+job2:
+  stage: execute
+  script:
+    - echo "Executing Job 2"
+  rules:
+    - if: '$JOB_TO_RUN == "job2"'
