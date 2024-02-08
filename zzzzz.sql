@@ -1,49 +1,67 @@
+WITH date_range AS (
+  SELECT
+    MIN(DATE_TRUNC('MONTH', creation_date)) AS start_date,
+    MAX(DATE_TRUNC('MONTH', creation_date)) AS end_date
+  FROM
+    task_table
+),
+monthly_dates AS (
+  SELECT
+    DATEADD('MONTH', SEQ4(), start_date) AS check_date
+  FROM
+    date_range,
+    TABLE(GENERATOR(ROWCOUNT => 1 + DATEDIFF('MONTH', start_date, end_date))) v
+)
 SELECT
-  DATE_TRUNC('MONTH', check_date) AS month,
-  COUNT(*) AS incomplete_tasks_count
+  check_date AS month,
+  (SELECT COUNT(*) FROM task_table WHERE (completion_date IS NULL OR completion_date >= check_date)) AS incomplete_tasks_count
 FROM
-  task_table,
-  TABLE(GENERATOR(ROWCOUNT => DATEDIFF('MONTH', '起点となる日付', CURRENT_DATE()) + 1)) v
-CROSS JOIN
-  LATERAL (SELECT DATEADD('MONTH', SEQ4(), '起点となる日付') AS check_date)
-WHERE
-  completion_date IS NULL OR completion_date >= check_date
-GROUP BY
-  month
+  monthly_dates
 ORDER BY
   month;
 
 
-
-
+WITH date_range AS (
+  SELECT
+    MIN(DATE_TRUNC('WEEK', creation_date)) AS start_date,
+    MAX(DATE_TRUNC('WEEK', creation_date)) AS end_date
+  FROM
+    task_table
+),
+weekly_dates AS (
+  SELECT
+    DATEADD('WEEK', SEQ4(), start_date) AS check_date
+  FROM
+    date_range,
+    TABLE(GENERATOR(ROWCOUNT => 1 + DATEDIFF('WEEK', start_date, end_date))) v
+)
 SELECT
-  DATE_TRUNC('WEEK', check_date) AS week,
-  COUNT(*) AS incomplete_tasks_count
+  check_date AS week,
+  (SELECT COUNT(*) FROM task_table WHERE (completion_date IS NULL OR completion_date >= check_date)) AS incomplete_tasks_count
 FROM
-  task_table,
-  TABLE(GENERATOR(ROWCOUNT => DATEDIFF('WEEK', '起点となる月曜日の日付', CURRENT_DATE()) + 1)) v
-CROSS JOIN
-  LATERAL (SELECT DATEADD('WEEK', SEQ4(), '起点となる月曜日の日付') AS check_date)
-WHERE
-  completion_date IS NULL OR completion_date >= check_date
-GROUP BY
-  week
+  weekly_dates
 ORDER BY
   week;
 
 
-
+WITH date_range AS (
+  SELECT
+    MIN(creation_date) AS start_date,
+    MAX(creation_date) AS end_date
+  FROM
+    task_table
+),
+daily_dates AS (
+  SELECT
+    DATEADD('DAY', SEQ4(), start_date) AS check_date
+  FROM
+    date_range,
+    TABLE(GENERATOR(ROWCOUNT => 1 + DATEDIFF('DAY', start_date, end_date))) v
+)
 SELECT
-  check_date::DATE AS day,
-  COUNT(*) AS incomplete_tasks_count
+  check_date AS day,
+  (SELECT COUNT(*) FROM task_table WHERE (completion_date IS NULL OR completion_date >= check_date)) AS incomplete_tasks_count
 FROM
-  task_table,
-  TABLE(GENERATOR(ROWCOUNT => DATEDIFF('DAY', '起点となる日付', CURRENT_DATE()) + 1)) v
-CROSS JOIN
-  LATERAL (SELECT DATEADD('DAY', SEQ4(), '起点となる日付') AS check_date)
-WHERE
-  completion_date IS NULL OR completion_date >= check_date
-GROUP BY
-  day
+  daily_dates
 ORDER BY
   day;
