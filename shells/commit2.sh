@@ -38,10 +38,16 @@ curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects?per_page=100"
         COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed -e 's/\"/\\\"/g')
         IS_MERGE_COMMIT=$(echo $j | jq -r '.parent_ids | length > 1')
 
-        DIFFS=$(curl --silent --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH/diffs")
-        ADDED_LINES=$(echo "$DIFFS" | jq '[.[] | .added_lines] | add')
-        DELETED_LINES=$(echo "$DIFFS" | jq '[.[] | .removed_lines] | add')
+         # コミットのdiffを取得
+        DIFFS=$(curl --silent --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH/diff")
 
+        # 追加および削除された行数を計算
+        ADDED_LINES=$(echo "$DIFFS" | grep '^+' | wc -l)
+        DELETED_LINES=$(echo "$DIFFS" | grep '^-' | wc -l)
+
+        # diffの先頭2行はヘッダ情報なので削除
+        ADDED_LINES=$((ADDED_LINES-2))
+        DELETED_LINES=$((DELETED_LINES-2))
         # 最初のレコードでなければカンマを追加
         if [ "$FIRST_RECORD" = true ]; then
             FIRST_RECORD=false
