@@ -38,9 +38,9 @@ curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects?per_page=100"
         COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed -e 's/\"/\\\"/g')
         IS_MERGE_COMMIT=$(echo $j | jq -r '.parent_ids | length > 1')
 
-        STATS=$(curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH/diff_stats")
-        ADDED_LINES=$(echo $STATS | jq '.total_additions')
-        DELETED_LINES=$(echo $STATS | jq '.total_deletions')
+        DIFFS=$(curl --silent --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH/diffs")
+        ADDED_LINES=$(echo "$DIFFS" | jq '[.[] | .added_lines] | add')
+        DELETED_LINES=$(echo "$DIFFS" | jq '[.[] | .removed_lines] | add')
 
         # 最初のレコードでなければカンマを追加
         if [ "$FIRST_RECORD" = true ]; then
