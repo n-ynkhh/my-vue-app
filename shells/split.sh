@@ -24,33 +24,42 @@ process_merge_requests() {
     project_id=$1
     project_name=$2
     namespace_path=$3
+    insert_started=false
 
     # 指定年月に作成されたMRのINSERT文を生成
-    echo "INSERT INTO your_merge_requests_table (mr_id, group_name, project_name, title, created_at, state, author, merged_at, source_branch, mr_url) VALUES" >> $SQL_FILE
     page=1
     while : ; do
         merge_requests=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests?private_token=$PRIVATE_TOKEN&created_after=$START_DATE&created_before=$END_DATE&per_page=$PER_PAGE&page=$page")
-        last_page=$(echo "$merge_requests" | jq -r '. | length')
+        if [ "$page" -eq 1 ] && [ "$(echo "$merge_requests" | jq '. | length')" -gt 0 ]; then
+            echo "INSERT INTO your_merge_requests_table (mr_id, group_name, project_name, title, created_at, state, author, merged_at, source_branch, mr_url) VALUES" >> $SQL_FILE
+            insert_started=true
+        fi
+        if [ "$(echo "$merge_requests" | jq '. | length')" -eq 0 ]; then
+            break
+        fi
 
         echo "$merge_requests" | jq -r --arg project_name "$project_name" --arg namespace_path "$namespace_path" \
-        '.[] | "(\(.id), '\''\($namespace_path)'\'', '\''\($project_name)'\'', '\''\(.title | gsub("'"'"'; "'"'"''"'"'"))'\'', '\''\(.created_at)'\'', '\''\(.state)'\'', '\''\(.author.username)'\'', '\''\(.merged_at // "NULL")'\'', '\''\(.source_branch)'\'', '\''\(.web_url)'\''),"' >> $SQL_FILE
+            '.[] | "(\(.id), '\''\($namespace_path)'\'', '\''\($project_name)'\'', '\''\(.title | gsub("'"'"'; "'"'"''"'"'"))'\'', '\''\(.created_at)'\'', '\''\(.state)'\'', '\''\(.author.username)'\'', '\''\(.merged_at // "NULL")'\'', '\''\(.source_branch)'\'', '\''\(.web_url)'\''),"' >> $SQL_FILE
 
-        [ "$last_page" -lt "$PER_PAGE" ] && break
         ((page++))
     done
 
     # 最後のカンマを削除し、セミコロンを追加
-    sed -i '$ s/,$/;/' $SQL_FILE
+    if [ "$insert_started" = true ]; then
+        sed -i '$ s/,$/;/' $SQL_FILE
+    fi
 
     # 指定年月に更新されたがそれ以前に作成されたMRのMERGEクエリを生成
-    # この部分に関しては、必要に応じて具体的なMERGEクエリを記述してください
+    # この部分に関しては、具体的なMERGEクエリを記述してください
 }
 
 # プロジェクトごとにマージリクエストを処理
 project_page=1
 while : ; do
     projects=$(curl -s "https://gitlab.com/api/v4/projects?private_token=$PRIVATE_TOKEN&per_page=$PER_PAGE&page=$project_page" | jq -c '.[] | select(.forked_from_project == null)')
-    [ -z "$projects" ] && break
+    if [ -z "$projects" ]; then
+        break
+    fi
 
     echo "$projects" | while IFS= read -r project; do
         project_id=$(echo "$project" | jq -r '.id')
@@ -61,7 +70,9 @@ while : ; do
 
     ((project_page++))
     next_page=$(curl -sI "https://gitlab.com/api/v4/projects/$project_id/merge_requests?private_token=$PRIVATE_TOKEN&per_page=$PER_PAGE&page=$((project_page+1))" | grep -Fi x-next-page | awk '{print $2}' | tr -d '\r')
-    [ -z "$next_page" ] || [ "$next_page" = "0" ] && break
+    if [ -z "$next_page" ] || [ "$next_page" = "0" ]; then
+        break
+    fi
 done
 
 # SnowSQLでSQLコマンドを実行
