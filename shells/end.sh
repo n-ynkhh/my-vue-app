@@ -13,11 +13,11 @@ while : ; do
         process_merge_requests "$project_id" "$project_name" "$namespace_path"
     done
 
-    # プロジェクト一覧のページネーション処理の修正
-    response_headers=$(curl -sI "https://gitlab.com/api/v4/projects?private_token=$PRIVATE_TOKEN&per_page=$PER_PAGE&page=$((project_page+1))")
+# ページネーション情報の取得
+    response_headers=$(curl -sI "https://gitlab.com/api/v4/projects?private_token=$PRIVATE_TOKEN&per_page=$PER_PAGE&page=$project_page")
     next_page=$(echo "$response_headers" | grep -Fi x-next-page | awk '{print $2}' | tr -d '\r')
     if [ -z "$next_page" ] || [ "$next_page" = "0" ]; then
         break
     fi
-    ((project_page++))
+    project_page=$((next_page))  # 次のページ番号を使用
 done
