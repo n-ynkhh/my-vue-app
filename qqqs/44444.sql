@@ -1,29 +1,28 @@
-WITH DateRange AS (
+WITH AnalysisDate AS (
   SELECT
-    DATE(created_at) AS analysis_date
+    MAX(created_at) AS target_date
   FROM
-    your_table_name
-  GROUP BY
-    analysis_date
+    your_table_name  -- 実際のテーブル名に置き換えてください
 ),
-
 DailyMRStatus AS (
   SELECT
-    d.analysis_date,
-    COUNT(*) FILTER (WHERE m.merged_at IS NULL OR m.merged_at > d.analysis_date) AS unmerged_count,
-    COUNT(*) FILTER (WHERE m.closed_at IS NULL OR m.closed_at > d.analysis_date) AS unclosed_count
+    DATE(created_at) AS created_date,
+    COUNT(CASE WHEN merged_at IS NULL OR merged_at > DATE(created_at) THEN 1 END) AS unmerged_count,
+    COUNT(CASE WHEN closed_at IS NULL OR closed_at > DATE(created_at) THEN 1 END) AS unclosed_count
   FROM
-    DateRange d
-    LEFT JOIN your_table_name m ON DATE(m.created_at) <= d.analysis_date
+    your_table_name,
+    AnalysisDate
+  WHERE
+    created_at <= AnalysisDate.target_date
   GROUP BY
-    d.analysis_date
+    created_date
 )
 
 SELECT
-  analysis_date,
+  created_date,
   unmerged_count,
   unclosed_count
 FROM
   DailyMRStatus
 ORDER BY
-  analysis_date;
+  created_date;
