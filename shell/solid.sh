@@ -58,3 +58,19 @@ done
 
 
 echo "$COMMITS" | jq -c '.[]' 2>/dev/null || { echo "Failed to parse JSON: $COMMITS" >&2; continue; } | while read j; do
+
+
+
+echo "$COMMITS" | jq -c '.[]' > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "Failed to parse JSON: $COMMITS" >&2
+else
+    echo "$COMMITS" | jq -c '.[]' | while read j; do
+        COMMIT_HASH=$(echo $j | jq -r '.id')
+        AUTHOR_NAME=$(echo $j | jq -r '.author_name')
+        COMMIT_DATE=$(echo $j | jq -r '.committed_date')
+        COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed -e 's/\"/\\\"/g')
+        IS_MERGE_COMMIT=$(echo $j | jq -r '.parent_ids | length > 1')
+        # 処理の続き...
+    done
+fi
