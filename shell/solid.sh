@@ -54,3 +54,7 @@ while : ; do
     done
     ((PAGE++))
 done
+
+
+
+echo "$COMMITS" | jq -c '.[]' 2>/dev/null || { echo "Failed to parse JSON: $COMMITS" >&2; continue; } | while read j; do
