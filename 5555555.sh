@@ -1,7 +1,6 @@
 #!/bin/bash
 
 TOKEN="your_private_token"
-GITLAB_URL="https://gitlab.example.com"
 OUTPUT_FILE="commits.sql"
 SINCE_DATE=""
 UNTIL_DATE=""
@@ -18,12 +17,13 @@ else
     UNTIL_DATE=$(date -d "$(date +%Y-%m-01) -1 second" '+%Y-%m-%dT%H:%M:%SZ')
 fi
 
-# 出力ファイルの初期化とINSERT文の開始部分の書き込み
-echo "INSERT INTO commits (group_name, project_name, author_name, commit_date, commit_hash, commit_message, added_lines, deleted_lines, is_merge_commit) VALUES" > $OUTPUT_FILE
+# 出力ファイルの初期化
+echo -n "" > $OUTPUT_FILE
+echo "INSERT INTO commits (group_name, project_name, author_name, commit_date, commit_hash, commit_message, added_lines, deleted_lines, is_merge_commit) VALUES" >> $OUTPUT_FILE
 
 PAGE=1
 while true; do
-    PROJECTS=$(curl --silent --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects?per_page=100&page=$PAGE")
+    PROJECTS=$(curl -s --header "Private-Token: $TOKEN" "https://gitlab.example.com/api/v4/projects?per_page=100&page=$PAGE&private_token=$TOKEN")
     if [ -z "$PROJECTS" ] || [ "$PROJECTS" = "[]" ]; then
         break
     fi
@@ -34,11 +34,11 @@ while true; do
         GROUP_NAME=$(echo $i | jq -r '.namespace.name')
 
         # プロジェクトの全ブランチを取得
-        BRANCHES=$(curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/branches?per_page=100")
+        BRANCHES=$(curl -s --header "Private-Token: $TOKEN" "https://gitlab.example.com/api/v4/projects/$PROJECT_ID/repository/branches?per_page=100&private_token=$TOKEN")
         echo "$BRANCHES" | jq -r '.[].name' | while read BRANCH; do
 
             # ブランチの全コミットを取得
-            COMMITS=$(curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits?ref_name=$BRANCH&since=$SINCE_DATE&until=$UNTIL_DATE&per_page=100")
+            COMMITS=$(curl -s --header "Private-Token: $TOKEN" "https://gitlab.example.com/api/v4/projects/$PROJECT_ID/repository/commits?ref_name=$BRANCH&since=$SINCE_DATE&until=$UNTIL_DATE&per_page=100&private_token=$TOKEN")
             echo "$COMMITS" | jq -c '.[]' | while read j; do
                 COMMIT_HASH=$(echo $j | jq -r '.id')
                 AUTHOR_NAME=$(echo $j | jq -r '.author_name')
@@ -46,7 +46,7 @@ while true; do
                 COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed 's/"/\\"/g')
                 IS_MERGE_COMMIT=$(echo $j | jq -r '.parent_ids | length > 1')
 
-                COMMIT_DETAIL=$(curl --header "Private-Token: $TOKEN" "$GITLAB_URL/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH")
+                COMMIT_DETAIL=$(curl -s --header "Private-Token: $TOKEN" "https://gitlab.example.com/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH?private_token=$TOKEN")
                 ADDED_LINES=$(echo $COMMIT_DETAIL | jq '.stats.additions')
                 DELETED_LINES=$(echo $COMMIT_DETAIL | jq '.stats.deletions')
 
