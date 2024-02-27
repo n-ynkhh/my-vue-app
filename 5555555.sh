@@ -71,12 +71,16 @@ echo ";" >> $OUTPUT_FILE
 
 
 
-# Construct the SQL insert statement
-      INSERT_STMT="('$GROUP_NAME', '$PROJECT_NAME', '$AUTHOR_NAME', '$COMMIT_DATE', '$COMMIT_HASH', '$COMMIT_MESSAGE', $ADDED_LINES, $DELETED_LINES, $IS_MERGE_COMMIT),"
+INSERT_STMT="('$GROUP_NAME', '$PROJECT_NAME', '$AUTHOR_NAME', '$COMMIT_DATE', '$COMMIT_HASH', '$COMMIT_MESSAGE', $ADDED_LINES, $DELETED_LINES, $IS_MERGE_COMMIT),"
 
-      # Append the insert statement to the output file
-      echo -n "$INSERT_STMT" >> output.sql
+      # Append the insert statement to the output file with proper new line handling
+      echo "$INSERT_STMT" | sed 's/\\n/\n/g' >> output.sql
     done
 
-    # Replace the last comma with a semicolon at the end of each branch's commits
-    sed -i '$ s/,$/;/' output.sql
+    # Add a new line at the end of each branch's commits
+    echo "" >> output.sql
+  done
+done
+
+# Replace the last comma with a semicolon at the end of the file and remove trailing new line
+sed -i '$ s/,$/;/' output.sql
