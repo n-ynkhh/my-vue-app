@@ -82,5 +82,13 @@ INSERT_STMT="('$GROUP_NAME', '$PROJECT_NAME', '$AUTHOR_NAME', '$COMMIT_DATE', '$
   done
 done
 
+
+if [ -n "$(echo "$COMMITS" | jq '.[]')" ]; then
+  echo "$COMMITS" | jq -c '.[]' | while read j; do
+    COMMIT_HASH=$(echo $j | jq -r '.id')
+    # その他の処理...
+  done
+fi
+
 # Replace the last comma with a semicolon at the end of the file and remove trailing new line
 sed -i '$ s/,$/;/' output.sql
