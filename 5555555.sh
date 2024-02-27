@@ -43,7 +43,7 @@ while true; do
                 COMMIT_HASH=$(echo $j | jq -r '.id')
                 AUTHOR_NAME=$(echo $j | jq -r '.author_name')
                 COMMIT_DATE=$(echo $j | jq -r '.committed_date')
-                COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed 's/"/\\"/g')
+                COMMIT_MESSAGE=$(echo $j | jq -r '.title' | sed -e "s/'/''/g" -e 's/\"/\\"/g')
                 IS_MERGE_COMMIT=$(echo $j | jq -r '.parent_ids | length > 1')
 
                 COMMIT_DETAIL=$(curl -s --header "Private-Token: $TOKEN" "https://gitlab.example.com/api/v4/projects/$PROJECT_ID/repository/commits/$COMMIT_HASH?private_token=$TOKEN")
