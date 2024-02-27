@@ -66,3 +66,17 @@ done
 
 # 最後にセミコロンを追加
 echo ";" >> $OUTPUT_FILE
+
+
+
+
+
+# Construct the SQL insert statement
+      INSERT_STMT="('$GROUP_NAME', '$PROJECT_NAME', '$AUTHOR_NAME', '$COMMIT_DATE', '$COMMIT_HASH', '$COMMIT_MESSAGE', $ADDED_LINES, $DELETED_LINES, $IS_MERGE_COMMIT),"
+
+      # Append the insert statement to the output file
+      echo -n "$INSERT_STMT" >> output.sql
+    done
+
+    # Replace the last comma with a semicolon at the end of each branch's commits
+    sed -i '$ s/,$/;/' output.sql
