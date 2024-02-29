@@ -17,3 +17,7 @@ echo "$COMMITS" | jq -c '.[] | select(.id != null)' | while read j; do
         echo "$INSERT_STMT" >> "$OUTPUT_FILE"
     fi
 done
+
+
+
+COMMIT_MESSAGE=$(echo "$j" | jq -r '.title' | sed "s/'/''/g" | sed 's/"/\\"/g')
