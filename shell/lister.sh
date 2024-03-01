@@ -79,5 +79,27 @@ if [ -s "$OUTPUT_FILE" ]; then
     snowsql -f "$OUTPUT_FILE"
 fi
 
+
+
+
+
+
+if [ "$(wc -l < "$OUTPUT_FILE")" -ge "$MAX_LINES" ]; then
+    sed -i '$ s/,$/;/' "$OUTPUT_FILE"  # 最後のコンマをセミコロンに変更
+    # SnowSQLでデータを投入
+    snowsql -f "$OUTPUT_FILE"
+    # 出力ファイルの初期化
+    echo "INSERT INTO commits (group_name, project_name, author_name, commit_date, commit_hash, commit_message, added_lines, deleted_lines, is_merge_commit) VALUES" > "$OUTPUT_FILE"
+fi
+
+
+# $OUTPUT_FILE の行数が2行以上の場合にのみ実行
+if [ "$(wc -l < "$OUTPUT_FILE")" -gt 1 ]; then
+    sed -i '$ s/,$/;/' "$OUTPUT_FILE"  # 最後のコンマをセミコロンに変更
+    # SnowSQL でデータを投入
+    snowsql -f "$OUTPUT_FILE"
+fi
+
+
 # 処理済みコミットファイルのクリーンアップ
 rm "$PROCESSED_COMMITS_FILE"
