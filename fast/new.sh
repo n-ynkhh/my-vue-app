@@ -79,3 +79,7 @@ main
 
 
 SOQL_QUERY="SELECT Id, Name, (SELECT Id, Name FROM ObjectB_Relationship_Name__r WHERE Contract_Status__c = '契約中') FROM ObjectA WHERE CreatedDate = YESTERDAY OR LastModifiedDate = YESTERDAY"
+
+SELECT Id, Name, ObjectB_Reference__r.Id, ObjectB_Reference__r.Name
+FROM ObjectA
+WHERE ObjectB_Reference__r.Contract_Status__c = '契約中'
