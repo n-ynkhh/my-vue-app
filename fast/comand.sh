@@ -39,3 +39,16 @@ curl https://YOUR_INSTANCE.salesforce.com/services/data/vXX.0/sobjects/YourObjec
     "Industry": "Technology"
   }
 ]
+
+
+# 投入するJSONファイル
+JSON_FILE="path/to/your_data_file.json"
+
+# Salesforce REST APIエンドポイント
+API_ENDPOINT="$INSTANCE_URL/services/data/vXX.0/sobjects/Account/"
+
+# APIコールでデータを投入
+curl -X POST $API_ENDPOINT \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d @$JSON_FILE
