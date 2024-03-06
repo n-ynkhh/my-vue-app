@@ -83,3 +83,15 @@ done
 
 # 処理が完了したらSQLファイルを削除
 rm "$FILE_NAME"
+
+
+
+    # JSON配列をイテレートしてVALUESを組み立てる
+    RECORD_COUNT=$(echo $DATA | jq '. | length')
+    for (( i = 0; i < RECORD_COUNT; i++ )); do
+        RECORD=$(echo $DATA | jq ".[$i] | @sh")
+        ID=$(echo $RECORD | cut -d' ' -f2)
+        NAME=$(echo $RECORD | cut -d' ' -f3)
+        CUSTOM_FIELD=$(echo $RECORD | cut -d' ' -f4)
+        VALUES="$VALUES, ($ID, $NAME, $CUSTOM_FIELD)"
+    done
