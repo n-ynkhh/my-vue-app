@@ -76,6 +76,8 @@ echo "$projects" | jq -c '.[] | {id, name}' | while read project; do
 
         # ジョブ情報をSQL INSERT文として出力
         echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | "INSERT INTO your_table_name (job_id, pipeline_id, project_id, project_name, branch_name, job_name, job_status, stage_name, tag_list, web_url, created_at, started_at, finished_at, user_id, user_name, runner_name) VALUES (\(.id), \(.pipeline.id), \($project_id), \($project_name), \(.ref), \(.name), \(.status), \(.stage), \((.tag_list | join(","))), \(.web_url), \(.created_at), \(.started_at), \(.finished_at), \(.user.id), \(.user.name), \((if .runner then .runner.description else "N/A" end)));" ' >> "$SQL_FILE"
+        # ジョブ情報をSQL INSERT文として出力
+        echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | "INSERT INTO your_table_name (job_id, pipeline_id, project_id, project_name, branch_name, job_name, job_status, stage_name, tag_list, web_url, created_at, started_at, finished_at, erased_at, duration, queued_duration, user_id, user_name, runner_name) VALUES (\(.id), \(.pipeline.id), \($project_id), \($project_name), \(.ref), \(.name), \(.status), \(.stage), \((.tag_list | join(","))), \(.web_url), \(.created_at), \(.started_at), \(.finished_at), \(.erased_at), \(.duration), \(.queued_duration), \(.user.id), \(.user.name), \((if .runner then .runner.description else "N/A" end)));" ' >> "$SQL_FILE"
     done
 done
 
