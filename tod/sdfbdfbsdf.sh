@@ -112,3 +112,8 @@ fi
                         LINE_COUNTER=0
                         BATCH_START=1
                     fi
+
+
+# ジョブ情報からVALUES部分を生成し、ファイルに書き込む
+echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | "('\''\(.id)'\'', '\''\(.pipeline.id)'\'', '\''\($project_id)'\'', '\''\($project_name)'\'', '\''\(.ref)'\'', '\''\(.name)'\'', '\''\(.status)'\'', '\''\(.stage)'\'', '\''\((.tag_list | join(",")))'\'', '\''\(.web_url)'\'', '\''\(.created_at)'\'', '\''\(.started_at)'\'', '\''\(.finished_at)'\'', \(.erased_at // "null"), \(.duration // "null"), \(.queued_duration // "null"), '\''\(.user.id)'\'', '\''\(.user.name)'\'', \((if .runner then '\''\(.runner.description)'\'' else "null" end))),' " >> "$SQL_FILE"
+
