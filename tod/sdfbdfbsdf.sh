@@ -1,3 +1,5 @@
+jobs=$(echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | ("'"\(.id), \(.pipeline.id), \($project_id), \($project_name), \(.ref), \(.name), \(.status), \(.stage), \((.tag_list | join(","))), \(.web_url), \(.created_at), \(.started_at), \(.finished_at), " + (if .erased_at then "'\''\(.erased_at)'\''" else "null") + ", " + (if .duration then "\(.duration)" else "null") + ", " + (if .queued_duration then "\(.queued_duration)" else "null") + ", \(.user.id), \(.user.name), " + (if .runner then "'\''\(.runner.description)'\''" else "null") + "'")')
+
 #!/bin/bash
 
 # GitLab APIのホスト名と個人アクセストークンを設定
