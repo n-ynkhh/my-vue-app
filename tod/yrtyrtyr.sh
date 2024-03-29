@@ -1,3 +1,9 @@
+echo "" >> "$SQL_FILE"
+
+# ファイルの最後のカンマをセミコロンに置き換える
+sed -i '$ s/,$/;/' "$SQL_FILE"
+
+
 echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | "('\''\(.id)'\'', '\''\(.pipeline.id)'\'', '\''\($project_id)'\'', '\''\($project_name)'\'', '\''\(.ref)'\'', '\''\(.name)'\'', '\''\(.status)'\'', '\''\(.stage)'\'', '\''\((.tag_list | join(",")))'\'', '\''\(.web_url)'\'', '\''\(.created_at)'\'', '\''\(.started_at)'\'', '\''\((if .finished_at == null then "NULL" else "'\(.finished_at)'" end)'\'', '\''\((if .erased_at == null then "NULL" else "'\(.erased_at)'" end)'\'', '\''\((if .duration == null then "NULL" else "'\(.duration)'" end)'\'', '\''\((if .queued_duration == null then "NULL" else "'\(.queued_duration)'" end)'\'', '\''\(.user.id)'\'', '\''\(.user.name)'\'', '\''\((if .runner then .runner.description else "N/A" end))'\''),"' >> "$SQL_FILE"
 
 
