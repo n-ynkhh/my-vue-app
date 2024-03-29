@@ -16,3 +16,34 @@ echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project
 
 
 '\''\((if .queued_duration == null then "NULL" else ("\(.queued_duration)") end)'\'' 
+
+
+#!/bin/bash
+
+# GitLabの設定
+BASE_URL="https://gitlab.com/api/v4" # GitLabインスタンスのURL
+PROJECT_ID="your_project_id" # プロジェクトID
+PRIVATE_TOKEN="your_private_token" # GitLabのアクセストークン
+DATE="2024-03-29" # 指定された日付 (YYYY-MM-DD)
+
+# パイプラインIDの配列 (例: PIPELINE_IDS=("1234" "5678"))
+PIPELINE_IDS=("pipeline_id_1" "pipeline_id_2")
+
+# 指定日の0時と23時59分をISO 8601形式で設定
+START_DATE="${DATE}T00:00:00Z"
+END_DATE="${DATE}T23:59:59Z"
+
+# 各パイプラインに対してループ処理
+for PIPELINE_ID in "${PIPELINE_IDS[@]}"; do
+    echo "Processing pipeline: $PIPELINE_ID"
+
+    # APIを使用して指定された時間範囲内のジョブを取得
+    jobs=$(curl --header "PRIVATE-TOKEN: $PRIVATE_TOKEN" "$BASE_URL/projects/$PROJECT_ID/pipelines/$PIPELINE_ID/jobs?updated_after=$START_DATE&updated_before=$END_DATE")
+
+    # 指定された日に完了したジョブをフィルタリング
+    finished_jobs=$(echo "$jobs" | jq --arg START_DATE "$START_DATE" --arg END_DATE "$END_DATE" '.[] | select(.finished_at | . >= $START_DATE and . <= $END_DATE)')
+
+    # フィルタリングされたジョブを出力または処理
+    echo "$finished_jobs"
+    # 必要に応じてここで変数にジョブ情報を追加する処理を行う
+done
