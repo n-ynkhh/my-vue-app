@@ -86,3 +86,29 @@ if [ $LINE_COUNTER -gt 0 ]; then
     snowsql -f "$SQL_FILE" -o friendly=false -o output_format=plain
     echo "$SQL_FILE のインポートが完了しました。"
 fi
+
+                    # バルクインサートの値部分を生成
+                    VALUES_PART=$(echo "$jobs" | jq -r --arg project_id "$project_id" --arg project_name "$project_name" '.[] | "(\(.id), \(.pipeline.id), \($project_id), \($project_name), \(.ref), \(.name), \(.status), \(.stage), \((.tag_list | join(","))), \(.web_url), \(.created_at), \(.started_at), \(.finished_at), \(.erased_at // "null"), \(.duration // "null"), \(.queued_duration // "null"), \(.user.id), \(.user.name), \((if .runner then .runner.description else "N/A" end))"')
+
+                    # 最後のレコードの末尾にコンマを付けないように調整
+                    VALUES=$(echo "$VALUES_PART" | awk '{if(NR>1)print ","$0; else print $0}' | awk 'NR>1{print prev}{prev=$0}END{print substr(prev, 1, length(prev))";"}')
+
+                    # バルクインサートの値部分をファイルに書き込む
+                    if [ "$BATCH_START" -eq 1 ]; then
+                        echo "INSERT INTO your_table_name (job_id, pipeline_id, project_id, project_name, branch_name, job_name, job_status, stage_name, tag_list, web_url, created_at, started_at, finished_at, erased_at, duration, queued_duration, user_id, user_name, runner_name) VALUES" >> "$SQL_FILE"
+                        BATCH_START=0
+                    else
+                        echo "," >> "$SQL_FILE"
+                    fi
+                    echo "$VALUES" >> "$SQL_FILE"
+
+                    LINE_COUNTER=$((LINE_COUNTER + $job_count))
+
+                    # 1000行ごとにSnowflakeにデータを投入し、ファイルを初期化
+                    if [ $LINE_COUNTER -ge 1000 ]; then
+                        snowsql -f "$SQL_FILE" -o friendly=false -o output_format=plain
+                        echo "$SQL_FILE のインポートが完了しました。"
+                        > "$SQL_FILE"
+                        LINE_COUNTER=0
+                        BATCH_START=1
+                    fi
