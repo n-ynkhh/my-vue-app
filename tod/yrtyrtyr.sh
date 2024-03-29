@@ -47,3 +47,18 @@ for PIPELINE_ID in "${PIPELINE_IDS[@]}"; do
     echo "$finished_jobs"
     # 必要に応じてここで変数にジョブ情報を追加する処理を行う
 done
+
+
+#!/bin/bash
+
+# 必要な変数の設定
+DATE="2024-03-29" # 例: "YYYY-MM-DD"
+START_DATE="${DATE}T00:00:00Z"
+END_DATE="${DATE}T23:59:59Z"
+SQL_FILE="output_file.sql" # 出力ファイルのパス
+
+# jobs変数からフィルタリングしてファイルに書き込む
+echo "$jobs" | jq -r --arg START_DATE "$START_DATE" --arg END_DATE "$END_DATE" --arg project_id "$PROJECT_ID" --arg project_name "$PROJECT_NAME" \
+'.[] | select(.finished_at | . >= $START_DATE and . <= $END_DATE) | 
+"('\''\(.id)'\'', '\''\(.pipeline.id)'\'', '\''\($project_id)'\'', '\''\($project_name)'\'', '\''\(.ref)'\'', '\''\(.name)'\'', '\''\(.status)'\'', '\''\(.stage)'\'', '\''\((.tag_list | join(",")))'\'', '\''\(.web_url)'\'', '\''\(.created_at)'\'', '\''\(.started_at)'\'', '\''\(.finished_at)'\'', '\''\(.erased_at // "null")'\'', '\''\(.duration // "null")'\'', '\''\(.queued_duration // "null")'\'', '\''\(.user.id)'\'', '\''\(.user.name)'\'', '\''\((if .runner then .runner.description else "N/A" end))'\''),"' >> "$SQL_FILE"
+
