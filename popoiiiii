@@ -1,0 +1,12 @@
+SELECT
+  project_name,
+  DATE_TRUNC('day', completion_date) AS completion_day,
+  COUNT(*) AS completed_count
+FROM
+  your_table_name
+GROUP BY
+  project_name,
+  completion_day
+ORDER BY
+  project_name,
+  completion_day;
