@@ -50,3 +50,16 @@ notes_count=$(
 
 # 出力
 echo "$notes_count"
+
+
+
+echo "$merge_requests" | jq -r '.[] | "\(.id) \(.author.id)"' | while read -r mr_id author_id; do
+    # 各MRに対してコメント数を取得
+    comments=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests/$mr_id/notes?private_token=$PRIVATE_TOKEN")
+    comments_count=$(echo "$comments" | jq '[.[] | select(.system == false)] | length')
+
+    # MR情報とコメント数を組み合わせてSQLファイルに書き込む
+    echo "$merge_requests" | jq -r --arg mr_id "$mr_id" --arg author_id "$author_id" --arg project_name "$project_name" --arg namespace_path "$namespace_path" --arg comments_count "$comments_count" \
+        '.[] | select(.id == ($mr_id | tonumber)) | "(\(.id), '\''\($namespace_path)'\'', '\''\($project_name)'\'', '\''\(.title | gsub("'"'"'; "'"'"''"'"'"))'\'', '\''\(.created_at)'\'', '\''\(.state)'\'', '\''\($author_id)'\'', '\''\(.merged_at // "NULL")'\'', '\''\(.source_branch)'\'', '\''\(.web_url)'\'', $comments_count)," >> $SQL_FILE
+done
+
