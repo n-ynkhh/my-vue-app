@@ -28,7 +28,8 @@ elif [ $# -eq 1 ]; then
 elif [ $# -eq 2 ]; then
     # 二つの日付の形式をチェック
     if date -d "$1" +"$date_format" &> /dev/null && date -d "$2" +"$date_format" &> /dev/null; then
-        if [ $(date -d "$1") -gt $(date -d "$2") ]; then
+        # 日付をエポック秒で比較
+        if [ $(date -d "$1" +%s) -gt $(date -d "$2" +%s) ]; then
             echo "エラー: 日付1が日付2よりも先の日付です。"
             exit 1
         fi
