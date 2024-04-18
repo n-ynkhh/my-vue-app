@@ -65,3 +65,20 @@ done
 
 first_commit_date=$(echo "$COMMITS" | jq -r '[.[] | select(.created_at != null)] | sort_by(.created_at) | .[0].created_at')
 
+
+# コミットを日時でソートし、最も古いコミットの日時を抽出
+first_commit_date=$(echo "$COMMITS" | jq -r '[.[] | select(.created_at != null)] | sort_by(.created_at) | .[0].created_at')
+
+# 特定のユーザー以外からのコメントの日付を抽出
+cut_off_date=$(echo "$COMMENTS" | jq -c '[.[] | select((.author.id | tostring != "5" and tostring != "6") and .system == true)] | sort_by(.created_at) | .[0] | .created_at')
+
+# その日付以前のコメントの中で最も古い有効なコメントの日付を抽出
+oldest_date=$(echo "$COMMENTS" | jq -c ".[] | select(.system == true and .created_at < $cut_off_date and ((.body | tostring) == \"aaaaa\" or (.body | tostring) | startswith(\"bbb\")))" | jq -s 'min_by(.created_at) | .created_at')
+
+if [[ -n "$oldest_date" ]]; then
+    echo "Oldest valid comment for MR $MR_IID: $oldest_date"
+else
+    echo "No valid comments found before cut-off date for MR $MR_IID"
+fi
+
+
