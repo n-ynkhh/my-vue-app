@@ -61,3 +61,7 @@ for MR_IID in "${MERGE_REQUEST_IIDS[@]}"; do
     # ...
 done
 
+
+
+first_commit_date=$(echo "$COMMITS" | jq -r '[.[] | select(.created_at != null)] | sort_by(.created_at) | .[0].created_at')
+
