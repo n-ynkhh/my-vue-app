@@ -32,3 +32,32 @@ for MR_IID in "${MERGE_REQUEST_IIDS[@]}"; do
         echo "No comments from non-specified users found for MR $MR_IID"
     fi
 done
+
+
+
+#!/bin/bash
+
+# プロジェクトIDとマージリクエストIDの配列を設定
+PROJECT_ID="your_project_id"
+MERGE_REQUEST_IIDS=(1 2 3)  # 対象のマージリクエストIDをリスト
+
+# GitLabのホストとアクセストークンを設定
+GITLAB_HOST="https://gitlab.example.com"  # GitLabのホストURL
+ACCESS_TOKEN="your_access_token"  # アクセストークン
+
+# 各マージリクエストに対してループ処理
+for MR_IID in "${MERGE_REQUEST_IIDS[@]}"; do
+    echo "Processing merge request ID: $MR_IID"
+
+    # GitLab APIを使用してマージリクエストに含まれるコミットを取得
+    COMMITS=$(curl -s --header "PRIVATE-TOKEN: $ACCESS_TOKEN" "$GITLAB_HOST/api/v4/projects/$PROJECT_ID/merge_requests/$MR_IID/commits")
+
+    # 最初のコミットの日時を抽出
+    first_commit_date=$(echo "$COMMITS" | jq -r '.[0].created_at')
+
+    echo "First commit date for MR $MR_IID: $first_commit_date"
+
+    # コメント部分の処理をここに追加
+    # ...
+done
+
