@@ -34,3 +34,24 @@ done
 snowsql -d $SNOWFLAKE_DATABASE -s $SNOWFLAKE_SCHEMA -f $SQL_FILE
 
 echo "処理が完了しました。"
+
+
+#!/bin/bash
+
+# ファイル名が格納された変数
+file1="path/to/your/file1.txt"
+file2="path/to/your/file2.txt"
+file3="path/to/your/file3.txt"
+
+# ファイル名の変数を配列に格納
+files=("$file1" "$file2" "$file3")
+
+# 配列の各要素に対してループ
+for file in "${files[@]}"
+do
+  # ファイルが存在し、かつファイルサイズが0の場合に削除
+  if [ -f "$file" ] && [ ! -s "$file" ]; then
+    rm "$file"
+    echo "Deleted: $file"
+  fi
+done
