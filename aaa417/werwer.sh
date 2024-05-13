@@ -39,3 +39,22 @@ process_merge_requests() {
 # 各MRのディスカッションを取得し、コメント数をカウント
 discussions=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests/$mr_id/discussions?private_token=$PRIVATE_TOKEN")
 comments_count=$(echo "$discussions" | jq '[.[] | .notes[] | select(.system == false)] | length')
+
+
+
+
+# MRの作成者IDを取得
+mr_author_id=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests/$mr_id?private_token=$PRIVATE_TOKEN" | jq '.author.id')
+
+# 各MRのディスカッションを取得
+discussions=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests/$mr_id/discussions?private_token=$PRIVATE_TOKEN")
+
+# システムコメントとMR作成者のコメントを除外し、最も古いコメントの日付を取得
+oldest_comment_date=$(echo "$discussions" | jq --arg mr_author_id "$mr_author_id" '
+  [.[] | .notes[]
+    | select(.system == false and .author.id != ($mr_author_id | tonumber))
+  ] | sort_by(.created_at) | .[0] | .created_at'
+)
+
+echo "The oldest user-generated comment date is: $oldest_comment_date"
+
