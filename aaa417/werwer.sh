@@ -58,3 +58,19 @@ oldest_comment_date=$(echo "$discussions" | jq --arg mr_author_id "$mr_author_id
 
 echo "The oldest user-generated comment date is: $oldest_comment_date"
 
+aaaaaaaaaaaaaaaaa
+
+
+# MRのディスカッションを取得
+discussions=$(curl -s "https://gitlab.com/api/v4/projects/$project_id/merge_requests/$mr_id/discussions?private_token=$PRIVATE_TOKEN")
+
+# 条件に合う最新のコメントの日時を取得
+latest_system_comment_date=$(echo "$discussions" | jq --arg oldest_comment_date "$oldest_comment_date" '
+  [.[] | .notes[]
+    | select(.system == true and .created_at < $oldest_comment_date and .body | contains("changed the description"))
+  ] | sort_by(.created_at) | reverse | .[0] | .created_at'
+)
+
+echo "The latest system-generated comment date (before the oldest user-generated comment) is: $latest_system_comment_date"
+
+
