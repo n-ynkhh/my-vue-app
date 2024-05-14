@@ -106,3 +106,15 @@ process_merge_requests() {
     fi
 }
 
+
+            # 新しいINSERT文を開始
+            if [ "$insert_count" -ge 500 ] || [ "$insert_started" = false ]; then
+                if [ "$insert_count" -ge 500 ]; then
+                    # 最後のカンマを削除し、セミコロンを追加
+                    sed -i '$ s/,$/;/' $SQL_FILE
+                    insert_count=0
+                fi
+                echo "INSERT INTO your_merge_requests_table (mr_id, group_name, project_name, title, created_at, state, author_id, merged_at, source_branch, mr_url, comments_count) VALUES" >> $SQL_FILE
+                insert_started=true
+            fi
+
