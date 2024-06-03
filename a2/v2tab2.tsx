@@ -30,7 +30,7 @@ const TableComponent = ({ data }: { data: Company[] }) => {
     state: {
       globalFilter: filterInput,
     },
-    globalFilterFn: (rows, columnIds, filterValue) => {
+    globalFilterFn: (rows: Row<Company>[], columnIds: string[], filterValue: string) => {
       const normalizedFilterValue = normalizeText(filterValue);
       return rows.filter(row => {
         const cellValue = row.original.company_name;
