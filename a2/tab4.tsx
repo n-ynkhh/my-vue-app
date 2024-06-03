@@ -58,7 +58,7 @@ const App: React.FC = () => {
       globalFilter: filterInput,
     },
     onGlobalFilterChange: setFilterInput,
-    globalFilterFn,
+    globalFilterFn: globalFilterFn as unknown as TableOptions<any>['globalFilterFn'],
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
