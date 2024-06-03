@@ -77,3 +77,15 @@ const TableComponent = ({ data }: { data: Company[] }) => {
 };
 
 export default TableComponent;
+
+// カスタムフィルタ関数の型定義
+const globalFilterFn = (rows: RowModel<Company>[], columnIds: string[], filterValue: string) => {
+  const normalizedFilterValue = normalizeText(filterValue);
+  return rows.filter(row => {
+    return columnIds.some(columnId => {
+      const cellValue = row.original[columnId];
+      const normalizedCellValue = normalizeText(String(cellValue));
+      return normalizedCellValue.includes(normalizedFilterValue);
+    });
+  });
+};
