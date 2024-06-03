@@ -6,10 +6,12 @@ import {
   flexRender,
   ColumnDef,
   Row,
+  FilterFn,
+  TableOptions,
 } from '@tanstack/react-table';
 
 // 全角と半角を区別しないフィルタリング関数
-const filterAlphanumeric = (row: Row<any>, columnId: string, filterValue: string) => {
+const filterAlphanumeric: FilterFn<any> = (row, columnId, filterValue) => {
   const normalizedFilterValue = filterValue.normalize('NFKC').toLowerCase();
   const cellValue = row.getValue(columnId);
   if (typeof cellValue !== 'string') {
@@ -22,9 +24,9 @@ const filterAlphanumeric = (row: Row<any>, columnId: string, filterValue: string
 const App: React.FC = () => {
   const data = useMemo(
     () => [
-      { id: 1, name: 'ＡＢＣ123' },
-      { id: 2, name: 'abc123' },
-      { id: 3, name: 'ａｂｃ１２３' },
+      { id: 1, company_name: 'ＡＢＣ123' },
+      { id: 2, company_name: 'abc123' },
+      { id: 3, company_name: 'ａｂｃ１２３' },
     ],
     []
   );
@@ -36,8 +38,8 @@ const App: React.FC = () => {
         header: 'ID',
       },
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: 'company_name',
+        header: 'Company Name',
       },
     ],
     []
@@ -45,10 +47,8 @@ const App: React.FC = () => {
 
   const [filterInput, setFilterInput] = useState<string>('');
 
-  const globalFilterFn = useMemo(() => {
-    return (rows: Row<any>[], columnIds: string[], filterValue: string) => {
-      return rows.filter(row => filterAlphanumeric(row, 'name', filterValue));
-    };
+  const globalFilterFn: FilterFn<any> = useMemo(() => {
+    return (row, columnId, filterValue) => filterAlphanumeric(row, 'company_name', filterValue);
   }, []);
 
   const table = useReactTable({
@@ -58,7 +58,7 @@ const App: React.FC = () => {
       globalFilter: filterInput,
     },
     onGlobalFilterChange: setFilterInput,
-    globalFilterFn: globalFilterFn as unknown as TableOptions<any>['globalFilterFn'],
+    globalFilterFn: globalFilterFn,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
@@ -68,7 +68,7 @@ const App: React.FC = () => {
       <input
         value={filterInput}
         onChange={(e) => setFilterInput(e.target.value)}
-        placeholder={'Search by name'}
+        placeholder={'Search by company name'}
         style={{ marginBottom: '10px' }}
       />
       <table {...table.getTableProps()}>
@@ -83,7 +83,7 @@ const App: React.FC = () => {
             </tr>
           ))}
         </thead>
-        <tbody {...table.getTableBodyProps()}>
+        <tbody>
           {table.getRowModel().rows.map(row => (
             <tr key={row.id} {...row.getRowProps()}>
               {row.getVisibleCells().map(cell => (
