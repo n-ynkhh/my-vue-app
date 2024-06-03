@@ -104,3 +104,11 @@ const filterByCompanyName = (row: any, columnId: string, filterValue: string) =>
   const normalizedCellValue = convertToHalfWidth(cellValue.toLowerCase());
   return normalizedCellValue.includes(normalizedFilter);
 };
+
+
+const filterByCompanyName = (row: any, columnId: string, filterValue: string) => {
+  const normalizedFilter = convertToHalfWidth(filterValue.toLowerCase());
+  const cellValue = row.getValue<string>(columnId);
+  const normalizedCellValue = convertToHalfWidth(cellValue.toLowerCase());
+  return normalizedCellValue.includes(normalizedFilter);
+};
