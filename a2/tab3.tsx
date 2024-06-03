@@ -95,3 +95,14 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+
+const filterAlphanumeric = (row: Row<any>, columnId: string, filterValue: string) => {
+  const normalizedFilterValue = filterValue.normalize('NFKC').toLowerCase();
+  const cellValue = row.getValue(columnId);
+  if (typeof cellValue !== 'string') {
+    return false;
+  }
+  const rowValue = cellValue.normalize('NFKC').toLowerCase();
+  return rowValue.includes(normalizedFilterValue);
+};
