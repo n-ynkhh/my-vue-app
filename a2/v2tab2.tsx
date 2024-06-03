@@ -89,3 +89,18 @@ const globalFilterFn = (rows: RowModel<Company>[], columnIds: string[], filterVa
     });
   });
 };
+
+
+
+const convertToHalfWidth = (str: string) => {
+  return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) =>
+    String.fromCharCode(s.charCodeAt(0) - 0xFEE0)
+  );
+};
+
+const filterByCompanyName = (row: any, columnId: string, filterValue: string) => {
+  const normalizedFilter = convertToHalfWidth(filterValue.toLowerCase());
+  const cellValue = row.getValue<string>(columnId);
+  const normalizedCellValue = convertToHalfWidth(cellValue.toLowerCase());
+  return normalizedCellValue.includes(normalizedFilter);
+};
