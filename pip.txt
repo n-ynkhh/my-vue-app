@@ -1,0 +1,88 @@
+XBRL形式の文書からデータを抜き出す方法として、Pythonを用いたアプローチが一般的です。以下は、Pythonを使用してXBRL文書からテーブル構造のデータ（カラム名と数値）を抜き出す基本的な手順です。
+
+ライブラリのインストール
+
+必要なライブラリをインストールします。beautifulsoup4やpandasが役立ちます。
+bash
+コードをコピーする
+pip install beautifulsoup4 pandas
+XBRL文書の読み込みとパース
+
+XBRL文書をBeautifulSoupでパースします。
+python
+コードをコピーする
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# XBRLファイルの読み込み
+with open('example.xbrl', 'r', encoding='utf-8') as file:
+    soup = BeautifulSoup(file, 'xml')
+データの抽出
+
+タグ名や属性を使用して、必要なデータを抽出します。
+python
+コードをコピーする
+# 例: カラム名と数値の抽出
+columns = []
+values = []
+
+for element in soup.find_all('your_element_tag'):
+    columns.append(element['column_name'])
+    values.append(element.text)
+
+# データフレームに変換
+df = pd.DataFrame({'Column': columns, 'Value': values})
+データの確認と保存
+
+抽出したデータを確認し、必要に応じてCSVやExcelに保存します。
+python
+コードをコピーする
+# データの表示
+print(df.head())
+
+# CSVに保存
+df.to_csv('output.csv', index=False)
+具体的な例
+以下に具体例を示します。この例では、架空のXBRL文書から特定のタグを検索し、その内容を抽出します。
+
+xml
+コードをコピーする
+<root>
+    <table>
+        <row>
+            <column name="Revenue">1000</column>
+            <column name="Profit">200</column>
+        </row>
+        <row>
+            <column name="Revenue">1500</column>
+            <column name="Profit">300</column>
+        </row>
+    </table>
+</root>
+python
+コードをコピーする
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# XBRLファイルの読み込み
+with open('example.xbrl', 'r', encoding='utf-8') as file:
+    soup = BeautifulSoup(file, 'xml')
+
+# データの抽出
+columns = []
+values = []
+
+for row in soup.find_all('row'):
+    for column in row.find_all('column'):
+        columns.append(column['name'])
+        values.append(column.text)
+
+# データフレームに変換
+df = pd.DataFrame({'Column': columns, 'Value': values})
+
+# データの表示
+print(df.head())
+
+# CSVに保存
+df.to_csv('output.csv', index=False)
+このようにして、XBRL文書からデータを抽出して処理することができます。具体的なXBRL文書の構造に応じて、適切にタグや属性を指定する必要があります。
