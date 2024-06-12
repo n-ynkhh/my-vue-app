@@ -1,0 +1,36 @@
+@startuml
+start
+
+:企業一覧マスタファイルを特定ディレクトリに配置;
+:企業一覧マスタテーブルをSnowflake上に更新;
+
+:上場企業のEdinetコードリストを取得;
+
+:日付範囲の指定;
+:書類一覧APIを呼び出し、指定範囲のdocIDリストを取得;
+:docIDリストをループ処理;
+while (次のdocIDがあるか?) is (Yes)
+    :有価証券報告書か判別;
+    :Edinetコードリストに該当するか確認;
+    if (有価証券報告書かつEdinetコードリストに該当?) then (Yes)
+        :有価証券報告書のdocIDリストに追加;
+    endif
+endwhile (No)
+
+:有価証券報告書のdocIDリストをループ処理;
+while (次のdocIDがあるか?) is (Yes)
+    :書類取得APIを呼び出し、ZIPファイルを取得;
+    :ZIPファイルを展開;
+    :展開したファイルをチェック;
+    if (ファイル名に-asr-が含まれているか?) then (Yes)
+        :CSVファイルを特定ディレクトリに保存;
+    endif
+endwhile (No)
+
+:保存したCSVファイルをSnowflakeへアップロード;
+
+:企業一覧マスタテーブルとCSVデータを結合;
+:最終テーブルにデータをインサート;
+
+stop
+@enduml
