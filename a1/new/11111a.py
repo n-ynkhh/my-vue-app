@@ -50,3 +50,11 @@ conn.cursor().execute(copy_query)
 conn.close()
 
 print("データのロードが完了しました。")
+
+
+copy_query = f"""
+COPY INTO {snowflake_table}
+FROM @%{snowflake_table}/EdinetcodeDlInfo_temp.csv
+FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 0)
+COLUMN_NAMES = (column1, column2, ..., 決算日);
+"""
