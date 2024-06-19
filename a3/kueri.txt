@@ -1,0 +1,19 @@
+-- カラムD_flagを初期化
+UPDATE your_table
+SET D_flag = CASE
+    WHEN A = '単体' AND D IS NOT NULL THEN '〇'
+    WHEN A = '単体' AND D IS NULL THEN '×'
+    WHEN A = '連結' AND D IS NOT NULL THEN '〇'
+    ELSE '×'
+END;
+
+-- カラムBとカラムCが同一文字列でカラムAが”単体”となっているレコードをチェックし、Dがnullでない場合はD_flagを”連結子会社開示あり”に更新
+UPDATE your_table t1
+SET D_flag = '連結子会社開示あり'
+FROM your_table t2
+WHERE t1.A = '連結'
+  AND t1.D IS NULL
+  AND t2.A = '単体'
+  AND t1.B = t2.B
+  AND t1.C = t2.C
+  AND t2.D IS NOT NULL;
