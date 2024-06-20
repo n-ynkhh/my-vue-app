@@ -59,3 +59,16 @@ test_cases = [
 
 for test in test_cases:
     print(convert_market_name(test))
+
+
+
+for key in market_dict:
+        if key in full_name:
+            exchange_short = market_dict[key]
+            for segment in market_segments.get(exchange_short, []):
+                if segment in full_name:
+                    return f"{exchange_short}{segment}"
+            return exchange_short
+
+    return full_name
+
