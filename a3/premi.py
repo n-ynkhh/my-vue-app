@@ -72,3 +72,10 @@ for key in market_dict:
 
     return full_name
 
+
+UPDATE テーブル２ t2
+SET t2.カラムF = t1.カラムB,
+    t2.カラムG = t1.カラムC
+FROM テーブル１ t1
+WHERE t1.カラムA = t2.カラムE;
+
