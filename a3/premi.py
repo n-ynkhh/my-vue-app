@@ -79,3 +79,7 @@ SET t2.カラムF = t1.カラムB,
 FROM テーブル１ t1
 WHERE t1.カラムA = t2.カラムE;
 
+
+
+= REPLACE(t1.カラムB, '株式会社', ''),
+
