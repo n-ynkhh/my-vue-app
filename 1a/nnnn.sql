@@ -12,3 +12,5 @@ FROM your_table;
 
 SELECT TO_CHAR(TO_NUMBER(columnB), 'FM9,999,999,999') AS formatted_columnB
 FROM your_table;
+
+TO_CHAR(TO_NUMBER(columnC) * 100, 'FM9990.00') || '%' AS formatted_columnC
