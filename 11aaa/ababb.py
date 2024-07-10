@@ -30,11 +30,11 @@ def split_text(text, max_length=2048):
     chunks = []
     while len(text) > max_length:
         split_pos = text.rfind('。', 0, max_length)
-        if split_pos == -1:
+        if split_pos == -1 or split_pos == 0:
             split_pos = max_length
-        chunks.append(text[:split_pos])
-        text = text[split_pos:]
-    chunks.append(text)
+        chunks.append(text[:split_pos].strip())
+        text = text[split_pos:].strip()
+    chunks.append(text.strip())
     return chunks
 
 def extract_info_from_text(text, queries):
