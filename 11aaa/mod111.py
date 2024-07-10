@@ -4,6 +4,7 @@ import random
 import os
 import fitz  # PyMuPDF
 import pandas as pd
+from urllib.parse import urlparse
 
 # Snowflake接続情報
 conn_params = {
@@ -49,11 +50,12 @@ def fetch_random_records():
     finally:
         conn.close()
 
-def download_pdf(url, index):
+def download_pdf(url):
     try:
         response = requests.get(url)
         response.raise_for_status()
-        pdf_path = os.path.join(save_dir, f'document_{index+1}.pdf')
+        filename = os.path.basename(urlparse(url).path)
+        pdf_path = os.path.join(save_dir, filename)
         with open(pdf_path, 'wb') as file:
             file.write(response.content)
         return pdf_path
@@ -78,9 +80,9 @@ def main():
     records = fetch_random_records()
     results = []
 
-    for i, record in enumerate(records):
+    for record in records:
         url, name, edinet_code = record
-        pdf_path = download_pdf(url, i)
+        pdf_path = download_pdf(url)
         if pdf_path:
             text = extract_text_from_pdf(pdf_path)
             text_length = len(text)
