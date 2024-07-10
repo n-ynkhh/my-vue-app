@@ -5,6 +5,10 @@ import pandas as pd
 
 # Azure OpenAI Serviceの設定
 openai.api_key = 'YOUR_AZURE_OPENAI_API_KEY'
+openai.api_base = 'YOUR_AZURE_OPENAI_ENDPOINT'  # 例: 'https://<your-resource-name>.openai.azure.com/'
+openai.api_type = 'azure'
+openai.api_version = '2023-05-15'  # 使用するAPIバージョンを指定
+
 model_engine = 'text-davinci-003'  # 例：text-davinci-003
 
 def extract_text_from_pdf(pdf_path):
@@ -38,23 +42,26 @@ def split_text(text, max_length=2048):
     return chunks
 
 def extract_info_from_text(text, queries):
-    results = {}
+    # テキストを適切な長さに分割
     chunks = split_text(text)
+    all_results = ""
+    
+    # 各チャンクに対してAzure OpenAIに問い合わせ
     for chunk in chunks:
         combined_query = "以下のテキストから次の情報を抽出してください：\n\n" + chunk + "\n\n"
-        for query in queries:
-            combined_query += f"{query}\n"
         response = query_openai(combined_query)
-        extracted_text = response['choices'][0]['text'].strip()
-        for query in queries:
-            if query not in results:
-                results[query] = ""
-            start_index = extracted_text.find(query)
-            if start_index != -1:
-                end_index = extracted_text.find("\n", start_index)
-                results[query] += extracted_text[start_index + len(query):end_index].strip()
-            else:
-                results[query] += "Not found"
+        all_results += response['choices'][0]['text'].strip()
+    
+    # クエリごとに情報を抽出
+    results = {}
+    for query in queries:
+        start_index = all_results.find(query)
+        if start_index != -1:
+            end_index = all_results.find("\n", start_index)
+            results[query] = all_results[start_index + len(query):end_index].strip()
+        else:
+            results[query] = "Not found"
+    
     return results
 
 def process_pdf(pdf_path):
