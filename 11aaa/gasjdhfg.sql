@@ -1,26 +1,14 @@
-WITH TypeCounts AS (
-    SELECT
-        url,
-        COUNT(DISTINCT type) AS type_count
-    FROM
-        your_table
-    WHERE
-        type IN ('a', 'b')
-    GROUP BY
-        url
-)
 SELECT
-    t.url,
+    a.url,
     CASE
-        WHEN tc.type_count = 2 THEN 'both'
-        WHEN tc.type_count = 1 THEN (SELECT type FROM your_table WHERE url = t.url LIMIT 1)
-        ELSE 'none'
-    END AS type_status
+        WHEN b.url IS NOT NULL THEN 'has b'
+        ELSE 'no b'
+    END AS type_b_status
 FROM
-    your_table t
-JOIN
-    TypeCounts tc ON t.url = tc.url
-GROUP BY
-    t.url, tc.type_count
+    (SELECT url FROM your_table WHERE type = 'a') a
+LEFT JOIN
+    (SELECT url FROM your_table WHERE type = 'b') b
+ON
+    a.url = b.url
 ORDER BY
-    t.url;
+    a.url;
