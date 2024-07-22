@@ -10,12 +10,17 @@ def extract_text_and_tables(pdf_path):
         text = page.get_text("text")
         full_text += text
         
-        # Extract tables using find_tables method
+       # Extract tables using find_tables method
         tables_on_page = page.find_tables()
         for table in tables_on_page:
             table_data = []
             for row in table.rows:
-                row_data = [cell.get_text() for cell in row]
+                row_data = []
+                for cell in row.cells:
+                    if isinstance(cell, tuple):
+                        row_data.append(cell[4])  # Cell text is likely in the 5th element
+                    else:
+                        row_data.append(cell.get_text())
                 table_data.append(row_data)
             tables.append(table_data)
     
