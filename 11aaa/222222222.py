@@ -50,5 +50,30 @@ def main():
             print(row)
         print()
 
+
+
+# 2次元リストのサンプル
+list_2d = [
+    ["Hello", "world", None],
+    ["This", "is", "a", "test"],
+    [None, "Python", "code"]
+]
+
+# 2次元リストを各行でjoinする関数
+def join_2d_list_with_newline(list_2d):
+    joined_lines = []
+    for row in list_2d:
+        # NoneTypeを空文字列に置き換える
+        cleaned_row = [str(item) if item is not None else '' for item in row]
+        # 各行をjoinして1つの文字列にする
+        joined_lines.append('\n'.join(cleaned_row))
+    # 各行をさらに\nで区切って1つの文字列にする
+    return '\n'.join(joined_lines)
+
+# 関数を使用して2次元リストをjoinする
+result = join_2d_list_with_newline(list_2d)
+print(result)
+
+
 if __name__ == "__main__":
     main()
